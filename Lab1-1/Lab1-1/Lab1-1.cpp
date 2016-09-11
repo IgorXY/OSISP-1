@@ -6,6 +6,7 @@
 #include "BrokenLine.h"
 #include "EllipseFigure.h"
 #include "RectangleFigure.h"
+#include "TextRect.h"
 #include <list>
 #include <iterator>
 #include <commdlg.h>
@@ -158,7 +159,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	   (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE),
 	   NULL);
    HBITMAP bmpSource = NULL;
-   bmpSource = (HBITMAP)LoadImage(NULL, L"Y:\\Ó÷åáà-5\\ÎÑÈÑÏ\\Lab1-1\\Img\\line.bmp", 
+   bmpSource = (HBITMAP)LoadImage(NULL, L"Y:\\Ó÷åáà-5\\ÎÑÈÑÏ\\OSISP-1\\Lab1-1\\Img\\line.bmp", 
 	   IMAGE_BITMAP, 0,0, LR_LOADFROMFILE); //Load bmp image
    SendMessage(bLine, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmpSource);// set button image
    //Pencil
@@ -166,7 +167,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	   L"", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_BITMAP, 70, 30, 30, 30, hWnd, (HMENU)PENCIL_BUTTON,
 	   (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE),
 	   NULL);
-   bmpSource = (HBITMAP)LoadImage(NULL, L"Y:\\Ó÷åáà-5\\ÎÑÈÑÏ\\Lab1-1\\Img\\pencil.bmp", 
+   bmpSource = (HBITMAP)LoadImage(NULL, L"Y:\\Ó÷åáà-5\\ÎÑÈÑÏ\\OSISP-1\\Lab1-1\\Img\\pencil.bmp", 
 	   IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE); //Load bmp image
    SendMessage(bPencil, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmpSource);
    //Broken
@@ -174,7 +175,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	   L"", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_BITMAP, 30, 70, 30, 30, hWnd, (HMENU)BROKEN_BUTTON,
 	   (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE),
 	   NULL);
-   bmpSource = (HBITMAP)LoadImage(NULL, L"Y:\\Ó÷åáà-5\\ÎÑÈÑÏ\\Lab1-1\\Img\\broken.bmp", 
+   bmpSource = (HBITMAP)LoadImage(NULL, L"Y:\\Ó÷åáà-5\\ÎÑÈÑÏ\\OSISP-1\\Lab1-1\\Img\\broken.bmp", 
 	   IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE); //Load bmp image
    SendMessage(bBroken, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmpSource);
    //Rectangle
@@ -182,7 +183,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	   L"", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_BITMAP, 70, 70, 30, 30, hWnd, (HMENU)RECTANGLE_BUTTON,
 	   (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE),
 	   NULL);
-   bmpSource = (HBITMAP)LoadImage(NULL, L"Y:\\Ó÷åáà-5\\ÎÑÈÑÏ\\Lab1-1\\Img\\rectangle.bmp", 
+   bmpSource = (HBITMAP)LoadImage(NULL, L"Y:\\Ó÷åáà-5\\ÎÑÈÑÏ\\OSISP-1\\Lab1-1\\Img\\rectangle.bmp", 
 	   IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE); //Load bmp image
    SendMessage(bRectangle, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmpSource);
    //Ellipse
@@ -190,7 +191,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	   L"", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_BITMAP, 30, 110, 30, 30, hWnd, (HMENU)ELLIPSE_BUTTON,
 	   (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE),
 	   NULL);
-   bmpSource = (HBITMAP)LoadImage(NULL, L"Y:\\Ó÷åáà-5\\ÎÑÈÑÏ\\Lab1-1\\Img\\ellipse.bmp", 
+   bmpSource = (HBITMAP)LoadImage(NULL, L"Y:\\Ó÷åáà-5\\ÎÑÈÑÏ\\OSISP-1\\Lab1-1\\Img\\ellipse.bmp", 
 	   IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE); //Load bmp image
    SendMessage(bEllipse, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmpSource);
    //ChooseColor
@@ -198,9 +199,17 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	   L"", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_BITMAP, 70, 110, 30, 30, hWnd, (HMENU)CHOOSECOLOR_BUTTON,
 	   (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE),
 	   NULL);
-   bmpSource = (HBITMAP)LoadImage(NULL, L"Y:\\Ó÷åáà-5\\ÎÑÈÑÏ\\Lab1-1\\Img\\ellipse.bmp",
+   bmpSource = (HBITMAP)LoadImage(NULL, L"Y:\\Ó÷åáà-5\\ÎÑÈÑÏ\\OSISP-1\\Lab1-1\\Img\\color.bmp",
 	   IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE); //Load bmp image
    SendMessage(bChooseColor, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmpSource);
+   //Text
+   HWND bText = CreateWindow(L"BUTTON",
+	   L"", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_BITMAP, 30, 150, 30, 30, hWnd, (HMENU)TEXT_BUTTON,
+	   (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE),
+	   NULL);
+   bmpSource = (HBITMAP)LoadImage(NULL, L"Y:\\Ó÷åáà-5\\ÎÑÈÑÏ\\OSISP-1\\Lab1-1\\Img\\text.bmp",
+	   IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE); //Load bmp image
+   SendMessage(bText, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmpSource);
 
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
@@ -261,6 +270,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			case BROKEN_BUTTON:
 			{
 				shapeType = 5;
+			}
+			break;
+			case TEXT_BUTTON:
+			{
+				shapeType = 6;
 			}
 			break;
 			case CHOOSECOLOR_BUTTON:
@@ -325,9 +339,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				tmpFigure->y1 = p.y;
 			}
 				break;
+			case 6:
+			{
+				tmpFigure = new TextRect();
+				tmpFigure->x1 = p.x;
+				tmpFigure->y1 = p.y;
+			}
+			break;
 			}
 			tmpFigure->qColor = color;
-			
+			tmpFigure->qColor2 = color;
 			//SendMessage(hWnd, WM_PAINT, NULL, NULL);
 		}
 	}
@@ -342,7 +363,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			ScreenToClient(hWnd, &p);
 			switch (shapeType)
 			{
-			case 1: case 3: case 4:
+			case 1: case 3: case 4: 
 			{
 				tmpFigure->x2 = p.x;
 				tmpFigure->y2 = p.y;
@@ -361,7 +382,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 			mouseDown = false;
 			//lLine.push_back(line);
-			if (shapeType != 5) {
+			if ((shapeType != 5)&&(shapeType != 6)) {
 				lFigure.push_back(tmpFigure);
 				tmpFigure = NULL;
 			}
@@ -372,14 +393,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_MOUSEMOVE:
 	{
 		if(mouseDown)
-		if (tmpFigure != NULL)
+		if ((tmpFigure != NULL))
 		{
 			POINT p;
 			GetCursorPos(&p);
 			ScreenToClient(hWnd, &p);
 			switch (shapeType)
 			{
-			case 1: case 3: case 4:
+			case 1: case 3: case 4: 
 			{
 				tmpFigure->x2 = p.x;
 				tmpFigure->y2 = p.y;
@@ -396,9 +417,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 			break;
 			
-			}
-
-			
+			}	
 			InvalidateRect(hWnd, rCanvas, NULL);
 		}
 	}
@@ -414,7 +433,33 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	}
 	break;
-
+	//KEY PRESS
+	case WM_CHAR:
+	{
+		if (shapeType == 6)
+		{
+			switch (wParam)
+			{
+			case 0x08:
+			{
+				((TextRect*)tmpFigure)->RemoveChar();
+			}
+			break;
+			case 0x0D:
+			{
+				lFigure.push_back(tmpFigure);
+				tmpFigure = NULL;
+			}
+			break;
+			default:
+				((TextRect*)tmpFigure)->AddChar((TCHAR)wParam);
+				break;
+			}
+			InvalidateRect(hWnd, rCanvas, NULL);
+		}
+		
+	}
+	break;
 	//PAINT WHEN INVALIDATE
     case WM_PAINT:
         {
