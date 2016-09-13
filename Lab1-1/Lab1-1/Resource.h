@@ -14,14 +14,6 @@
 #define IDI_SMALL				108
 #define IDC_LAB11			109
 #define IDC_MYICON				2
-#define IDM_LINE	110
-#define IDM_POLYLINE	111
-#define IDM_PEN		112
-#define IDM_RECTANGLE		113
-#define IDM_ELLIPSE		114
-#define IDM_TEXT		115
-#define IDM_COLOR1		116
-#define IDM_COLOR2		117
 #ifndef IDC_STATIC
 #define IDC_STATIC				-1
 #endif
