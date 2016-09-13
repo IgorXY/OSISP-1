@@ -8,7 +8,7 @@ void BrokenLine::Draw(HDC hdc)
 		HPEN oldPen;
 
 		//qColor = RGB(0, 0, 0);
-		hPen = CreatePen(PS_SOLID, 4, qColor);
+		hPen = CreatePen(PS_SOLID, iBrushSize, qColor);
 		oldPen = (HPEN)SelectObject(hdc, hPen);//store old pen
 		MoveToEx(hdc, aPoint[0].x, aPoint[0].y, NULL);
 		for (int i = 1; i < count - 1; i++)

@@ -10,6 +10,7 @@
 #include <list>
 #include <iterator>
 #include <commdlg.h>
+#include <CommCtrl.h>
 using namespace std;
 
 #define MAX_LOADSTRING 100
@@ -19,15 +20,15 @@ HINSTANCE hInst;                                // current instance
 WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
 WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
 
-list<RECT*> myList;
-list<Line*> lLine;
+
 list<AbstractFigure*> lFigure;
 AbstractFigure *tmpFigure = NULL;
 RECT* rCanvas = new RECT();
 int shapeType = 0;
 bool mouseDown = false;
-COLORREF color = RGB(0, 0, 0);
-
+COLORREF color1 = RGB(0, 0, 0);
+COLORREF color2 = RGB(255, 255, 255);
+int iBrushSize = 1;
 // Forward declarations of functions included in this code module:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
@@ -194,14 +195,22 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    bmpSource = (HBITMAP)LoadImage(NULL, L"Y:\\Ó÷åáà-5\\ÎÑÈÑÏ\\OSISP-1\\Lab1-1\\Img\\ellipse.bmp", 
 	   IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE); //Load bmp image
    SendMessage(bEllipse, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmpSource);
-   //ChooseColor
-   HWND bChooseColor = CreateWindow(L"BUTTON",
-	   L"", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_BITMAP, 70, 110, 30, 30, hWnd, (HMENU)CHOOSECOLOR_BUTTON,
+   //ChooseColor1
+   HWND bChooseColor1 = CreateWindow(L"BUTTON",
+	   L"", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_BITMAP, 70, 110, 30, 30, hWnd, (HMENU)CHOOSECOLOR_BUTTON1,
 	   (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE),
 	   NULL);
    bmpSource = (HBITMAP)LoadImage(NULL, L"Y:\\Ó÷åáà-5\\ÎÑÈÑÏ\\OSISP-1\\Lab1-1\\Img\\color.bmp",
 	   IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE); //Load bmp image
-   SendMessage(bChooseColor, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmpSource);
+   SendMessage(bChooseColor1, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmpSource);
+   //ChooseColor2
+   HWND bChooseColor2 = CreateWindow(L"BUTTON",
+	   L"", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_BITMAP, 70, 150, 30, 30, hWnd, (HMENU)CHOOSECOLOR_BUTTON2,
+	   (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE),
+	   NULL);
+   bmpSource = (HBITMAP)LoadImage(NULL, L"Y:\\Ó÷åáà-5\\ÎÑÈÑÏ\\OSISP-1\\Lab1-1\\Img\\color.bmp",
+	   IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE); //Load bmp image
+   SendMessage(bChooseColor2, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmpSource);
    //Text
    HWND bText = CreateWindow(L"BUTTON",
 	   L"", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_BITMAP, 30, 150, 30, 30, hWnd, (HMENU)TEXT_BUTTON,
@@ -210,6 +219,27 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    bmpSource = (HBITMAP)LoadImage(NULL, L"Y:\\Ó÷åáà-5\\ÎÑÈÑÏ\\OSISP-1\\Lab1-1\\Img\\text.bmp",
 	   IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE); //Load bmp image
    SendMessage(bText, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmpSource);
+
+
+   //Pen size combobox
+   HWND hWndComboBox = CreateWindow(WC_COMBOBOX, TEXT(""),
+	   CBS_DROPDOWN | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE,
+	   30, 190, 70, 230, hWnd, NULL, hInstance,
+	   NULL);
+   TCHAR Sizes[4][3] =
+   {
+	   TEXT("1"), TEXT("3"), TEXT("7"), TEXT("10")
+   };
+
+   TCHAR A[3];
+   memset(&A, 0, sizeof(A));
+   for (int k = 0; k <= 3; k += 1)
+   {
+	   wcscpy_s(A, sizeof(A) / sizeof(TCHAR), (TCHAR*)Sizes[k]);
+	   SendMessage(hWndComboBox, (UINT)CB_ADDSTRING, (WPARAM)0, (LPARAM)A);
+   }
+   SendMessage(hWndComboBox, CB_SETCURSEL, (WPARAM)0, (LPARAM)0);
+
 
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
@@ -236,20 +266,31 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     switch (message)
     {
     case WM_COMMAND:
-        {
-            int wmId = LOWORD(wParam);
-            // Parse the menu selections:
-            switch (wmId)
-            {
-            case IDM_ABOUT:
-                DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-                break;
-            case IDM_EXIT:
-                DestroyWindow(hWnd);
-                break;
+	{
+		int wmId = LOWORD(wParam);
+		if (HIWORD(wParam) == CBN_SELCHANGE)
+		{
+			int ItemIndex = SendMessage((HWND)lParam, (UINT)CB_GETCURSEL,
+				(WPARAM)0, (LPARAM)0);
+			TCHAR  ListItem[256];
+			(TCHAR)SendMessage((HWND)lParam, (UINT)CB_GETLBTEXT,
+				(WPARAM)ItemIndex, (LPARAM)ListItem);
+			//MessageBox(hWnd, (LPCWSTR)ListItem, TEXT("Item Selected"), MB_OK);
+			iBrushSize = _wtoi(ListItem);
+		}
+			
+			// Parse the menu selections:
+			switch (wmId)
+			{
+			case IDM_ABOUT:
+				DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+				break;
+			case IDM_EXIT:
+				DestroyWindow(hWnd);
+				break;
 			case LINE_BUTTON:
 			{
-				shapeType = 1; 
+				shapeType = 1;
 			}
 			break;
 			case RECTANGLE_BUTTON:
@@ -275,24 +316,29 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			case TEXT_BUTTON:
 			{
 				shapeType = 6;
+				SetFocus(hWnd);
 			}
 			break;
-			case CHOOSECOLOR_BUTTON:
-			{			
-				color = choseColor(hWnd);
-			}			
+			case CHOOSECOLOR_BUTTON1:
+			{
+				color1 = choseColor(hWnd);
+			}
 			break;
-            default:
-                return DefWindowProc(hWnd, message, wParam, lParam);
-            }
-        }
-        break;
+			case CHOOSECOLOR_BUTTON2:
+			{
+				color2 = choseColor(hWnd);
+			}
+			break;
+			default:
+				return DefWindowProc(hWnd, message, wParam, lParam);
+			}
+	}
+	break;
 	//LEFT MOUSE BUTTON DOWN
 	case WM_LBUTTONDOWN:
 	{
 		if (shapeType != 0)
 		{
-			
 			POINT p;
 			GetCursorPos(&p);
 			ScreenToClient(hWnd, &p);
@@ -347,8 +393,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 			break;
 			}
-			tmpFigure->qColor = color;
-			tmpFigure->qColor2 = color;
+			tmpFigure->qColor = color1;
+			tmpFigure->qColor2 = color2;
+			tmpFigure->iBrushSize = iBrushSize;
 			//SendMessage(hWnd, WM_PAINT, NULL, NULL);
 		}
 	}
@@ -509,7 +556,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         break;
     case WM_DESTROY:
-		myList.clear();
+		lFigure.clear();
         PostQuitMessage(0);
         break;
     default:

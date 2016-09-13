@@ -3,7 +3,7 @@
 class AbstractFigure
 {
 public:
-	int x1, y1, x2, y2;
+	int x1, y1, x2, y2, iBrushSize;
 	HPEN hPen;
 	HBRUSH hBrush;
 	COLORREF qColor, qColor2;

@@ -21,7 +21,7 @@ void TextRect::Draw(HDC hdc)
 	if (count > 0) {
 		HPEN oldPen;
 		//qColor = RGB(0, 0, 0);
-		hPen = CreatePen(PS_SOLID, 4, qColor);
+		hPen = CreatePen(PS_SOLID, iBrushSize, qColor);
 		oldPen = (HPEN)SelectObject(hdc, hPen);//store old pen
 
 		TextOutA(hdc, x1, y1, str.c_str(), strlen(str.c_str()));

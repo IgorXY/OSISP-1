@@ -6,7 +6,7 @@ void EllipseFigure::Draw(HDC hdc)
 	HPEN oldPen;
 	HBRUSH oldBrush;
 	//qColor = RGB(0, 0, 0);
-	hPen = CreatePen(PS_SOLID, 4, qColor);
+	hPen = CreatePen(PS_SOLID, iBrushSize, qColor);
 	hBrush = CreateSolidBrush(qColor2);
 	oldPen = (HPEN)SelectObject(hdc, hPen);//store old pen
 	oldBrush = (HBRUSH)SelectObject(hdc, hBrush);//store old pen
