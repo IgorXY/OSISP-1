@@ -288,43 +288,43 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			case IDM_EXIT:
 				DestroyWindow(hWnd);
 				break;
-			case LINE_BUTTON:
+			case LINE_BUTTON: case IDM_LINE:
 			{
 				shapeType = 1;
 			}
 			break;
-			case RECTANGLE_BUTTON:
+			case RECTANGLE_BUTTON: case IDM_RECTANGLE:
 			{
 				shapeType = 3;
 			}
 			break;
-			case PENCIL_BUTTON:
+			case PENCIL_BUTTON: case IDM_PEN:
 			{
 				shapeType = 2;
 			}
 			break;
-			case ELLIPSE_BUTTON:
+			case ELLIPSE_BUTTON: case IDM_ELLIPSE:
 			{
 				shapeType = 4;
 			}
 			break;
-			case BROKEN_BUTTON:
+			case BROKEN_BUTTON: case IDM_POLYLINE:
 			{
 				shapeType = 5;
 			}
 			break;
-			case TEXT_BUTTON:
+			case TEXT_BUTTON: case IDM_TEXT:
 			{
 				shapeType = 6;
 				SetFocus(hWnd);
 			}
 			break;
-			case CHOOSECOLOR_BUTTON1:
+			case CHOOSECOLOR_BUTTON1: case IDM_COLOR1:
 			{
 				color1 = choseColor(hWnd);
 			}
 			break;
-			case CHOOSECOLOR_BUTTON2:
+			case CHOOSECOLOR_BUTTON2: case IDM_COLOR2:
 			{
 				color2 = choseColor(hWnd);
 			}
