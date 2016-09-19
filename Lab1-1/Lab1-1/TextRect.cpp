@@ -16,17 +16,24 @@ void TextRect::RemoveChar()
 	}
 }
 
-void TextRect::Draw(HDC hdc)
+void TextRect::Draw(HDC hdc, double scale)
 {
 	if (count > 0) {
 		HPEN oldPen;
 		//qColor = RGB(0, 0, 0);
-		hPen = CreatePen(PS_SOLID, iBrushSize, qColor);
+		hPen = CreatePen(PS_SOLID, iBrushSize*scale, qColor);
 		oldPen = (HPEN)SelectObject(hdc, hPen);//store old pen
 
-		TextOutA(hdc, x1, y1, str.c_str(), strlen(str.c_str()));
+		TextOutA(hdc, x1*scale, y1*scale, str.c_str(), strlen(str.c_str()));
 
 		SelectObject(hdc, oldPen);
 		DeleteObject(hPen);
 	}
 }
+
+void TextRect::Pan(POINT p)
+{
+	x1 += p.x;
+	y1 += p.y;
+}
+

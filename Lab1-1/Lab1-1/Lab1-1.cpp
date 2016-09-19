@@ -5,7 +5,7 @@
 #include "Lab1-1.h"
 #include "BrokenLine.h"
 #include "EllipseFigure.h"
-#include "RectangleFigure.h"
+#include "PrintRect.h"
 #include "TextRect.h"
 #include <list>
 #include <iterator>
@@ -20,15 +20,18 @@ HINSTANCE hInst;                                // current instance
 WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
 WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
 
-
 list<AbstractFigure*> lFigure;
 AbstractFigure *tmpFigure = NULL;
 RECT* rCanvas = new RECT();
 int shapeType = 0;
 bool mouseDown = false;
+HENHMETAFILE hEnhMtf;
 COLORREF color1 = RGB(0, 0, 0);
 COLORREF color2 = RGB(255, 255, 255);
 int iBrushSize = 1;
+double dScale = 1;
+POINT pMouseDown;
+PRINTDLG pd;
 // Forward declarations of functions included in this code module:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
@@ -101,6 +104,77 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
     return RegisterClassExW(&wcex);
 }
 
+///////// ‰Îˇ ÁÛÏ‡
+
+/**/
+
+
+string GetFilepathDialog(HWND hWnd, bool save) {
+	static OPENFILENAME ofn;
+	static char fullpath[255], filename[256], dir[256];
+	ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.hwndOwner = hWnd;
+	ofn.hInstance = hInst; // ‰ÂÒÍËÔÚÓ ÍÓÔËË ÔËÎÓÊÂÌËˇ
+	ofn.lpstrFilter = (LPCSTR)"Metafile (*.emf)\0*.emf\0¬ÒÂ Ù‡ÈÎ˚ (*.*)\0*.*\0";
+	ofn.nFilterIndex = 1;
+	ofn.lpstrFile = (LPSTR)fullpath;
+	ofn.nMaxFile = sizeof(fullpath);
+	ofn.lpstrFileTitle = (LPSTR)filename;
+	ofn.nMaxFileTitle = sizeof(filename);
+	ofn.lpstrInitialDir = (LPCSTR)dir;
+	ofn.Flags = OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY | OFN_EXPLORER;
+	if (save) {
+		ofn.lpstrTitle = (LPCSTR)"Save picture as...";
+		GetSaveFileName(&ofn);
+	}
+	else {
+		ofn.lpstrTitle = (LPCSTR)"Open picture";
+		GetOpenFileName(&ofn);
+	}
+	return fullpath;
+}
+
+void OpenPicture(HWND hWnd, HDC hdc, RECT rect) {
+	static string fullpath;
+	fullpath = GetFilepathDialog(hWnd, 0);
+	if (!fullpath.empty())
+	{
+		//GetClientRect(hWnd, &rect);
+		hEnhMtf = GetEnhMetaFile((LPCSTR)fullpath.c_str());
+		PlayEnhMetaFile(hdc, hEnhMtf, &rect);
+	}
+}
+
+void SavePicture(HWND hWnd, HDC hdc, RECT rect) {
+	static string fullpath;
+	fullpath = GetFilepathDialog(hWnd, 1);
+	if (!fullpath.empty())
+	{
+		//	HENHMETAFILE hEnhMtf;
+		HDC mtfHdc;
+		fullpath += ".emf";
+		///
+		/*RECT rect1;
+		rect1.top = 0;
+		rect1.left = 0;
+		rect1.bottom = 100;
+		rect1.right=100;*/
+		///
+		mtfHdc = CreateEnhMetaFile(hdc, (LPCSTR)fullpath.c_str(), &rect, NULL);
+		/*(&rect)->top /= 26;
+		(&rect)->left /= 26;
+		(&rect)->left -= rCanvas->left;
+		(&rect)->bottom /= 26;
+		(&rect)->right /= 26;
+		(&rect)->right -= rCanvas->left;*/
+		PlayEnhMetaFile(mtfHdc, hEnhMtf, &rect);
+		for (AbstractFigure *figure : lFigure)
+			figure->Draw(mtfHdc, dScale);
+		hEnhMtf = CloseEnhMetaFile(mtfHdc);
+		DeleteEnhMetaFile(hEnhMtf);
+	}
+}
+
 COLORREF choseColor(HWND hWnd)
 {
 	CHOOSECOLOR color;
@@ -155,68 +229,68 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    rCanvas->right = CANVAS_WIDTH;
    //-------------MY BUTTONS--------------//
    //Line
-   HWND bLine = CreateWindow(L"BUTTON",
-	   L"", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_BITMAP, 30, 30, 30, 30, hWnd, (HMENU)LINE_BUTTON,
+   HWND bLine = CreateWindow("BUTTON",
+	   "", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_BITMAP, 30, 30, 30, 30, hWnd, (HMENU)LINE_BUTTON,
 	   (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE),
 	   NULL);
    HBITMAP bmpSource = NULL;
-   bmpSource = (HBITMAP)LoadImage(NULL, L"Y:\\”˜Â·‡-5\\Œ—»—œ\\OSISP-1\\Lab1-1\\Img\\line.bmp", 
+   bmpSource = (HBITMAP)LoadImage(NULL, "Y:\\”˜Â·‡-5\\Œ—»—œ\\OSISP-1\\Lab1-1\\Img\\line.bmp", 
 	   IMAGE_BITMAP, 0,0, LR_LOADFROMFILE); //Load bmp image
    SendMessage(bLine, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmpSource);// set button image
    //Pencil
-   HWND bPencil = CreateWindow(L"BUTTON",
-	   L"", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_BITMAP, 70, 30, 30, 30, hWnd, (HMENU)PENCIL_BUTTON,
+   HWND bPencil = CreateWindow("BUTTON",
+	   "", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_BITMAP, 70, 30, 30, 30, hWnd, (HMENU)PENCIL_BUTTON,
 	   (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE),
 	   NULL);
-   bmpSource = (HBITMAP)LoadImage(NULL, L"Y:\\”˜Â·‡-5\\Œ—»—œ\\OSISP-1\\Lab1-1\\Img\\pencil.bmp", 
+   bmpSource = (HBITMAP)LoadImage(NULL, "Y:\\”˜Â·‡-5\\Œ—»—œ\\OSISP-1\\Lab1-1\\Img\\pencil.bmp", 
 	   IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE); //Load bmp image
    SendMessage(bPencil, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmpSource);
    //Broken
-   HWND bBroken = CreateWindow(L"BUTTON",
-	   L"", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_BITMAP, 30, 70, 30, 30, hWnd, (HMENU)BROKEN_BUTTON,
+   HWND bBroken = CreateWindow("BUTTON",
+	   "", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_BITMAP, 30, 70, 30, 30, hWnd, (HMENU)BROKEN_BUTTON,
 	   (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE),
 	   NULL);
-   bmpSource = (HBITMAP)LoadImage(NULL, L"Y:\\”˜Â·‡-5\\Œ—»—œ\\OSISP-1\\Lab1-1\\Img\\broken.bmp", 
+   bmpSource = (HBITMAP)LoadImage(NULL, "Y:\\”˜Â·‡-5\\Œ—»—œ\\OSISP-1\\Lab1-1\\Img\\broken.bmp", 
 	   IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE); //Load bmp image
    SendMessage(bBroken, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmpSource);
    //Rectangle
-   HWND bRectangle = CreateWindow(L"BUTTON",
-	   L"", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_BITMAP, 70, 70, 30, 30, hWnd, (HMENU)RECTANGLE_BUTTON,
+   HWND bRectangle = CreateWindow("BUTTON",
+	   "", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_BITMAP, 70, 70, 30, 30, hWnd, (HMENU)RECTANGLE_BUTTON,
 	   (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE),
 	   NULL);
-   bmpSource = (HBITMAP)LoadImage(NULL, L"Y:\\”˜Â·‡-5\\Œ—»—œ\\OSISP-1\\Lab1-1\\Img\\rectangle.bmp", 
+   bmpSource = (HBITMAP)LoadImage(NULL, "Y:\\”˜Â·‡-5\\Œ—»—œ\\OSISP-1\\Lab1-1\\Img\\rectangle.bmp", 
 	   IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE); //Load bmp image
    SendMessage(bRectangle, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmpSource);
    //Ellipse
-   HWND bEllipse = CreateWindow(L"BUTTON",
-	   L"", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_BITMAP, 30, 110, 30, 30, hWnd, (HMENU)ELLIPSE_BUTTON,
+   HWND bEllipse = CreateWindow("BUTTON",
+	   "", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_BITMAP, 30, 110, 30, 30, hWnd, (HMENU)ELLIPSE_BUTTON,
 	   (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE),
 	   NULL);
-   bmpSource = (HBITMAP)LoadImage(NULL, L"Y:\\”˜Â·‡-5\\Œ—»—œ\\OSISP-1\\Lab1-1\\Img\\ellipse.bmp", 
+   bmpSource = (HBITMAP)LoadImage(NULL, "Y:\\”˜Â·‡-5\\Œ—»—œ\\OSISP-1\\Lab1-1\\Img\\ellipse.bmp", 
 	   IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE); //Load bmp image
    SendMessage(bEllipse, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmpSource);
    //ChooseColor1
-   HWND bChooseColor1 = CreateWindow(L"BUTTON",
-	   L"", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_BITMAP, 70, 110, 30, 30, hWnd, (HMENU)CHOOSECOLOR_BUTTON1,
+   HWND bChooseColor1 = CreateWindow("BUTTON",
+	   "", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_BITMAP, 70, 110, 30, 30, hWnd, (HMENU)CHOOSECOLOR_BUTTON1,
 	   (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE),
 	   NULL);
-   bmpSource = (HBITMAP)LoadImage(NULL, L"Y:\\”˜Â·‡-5\\Œ—»—œ\\OSISP-1\\Lab1-1\\Img\\color.bmp",
+   bmpSource = (HBITMAP)LoadImage(NULL, "Y:\\”˜Â·‡-5\\Œ—»—œ\\OSISP-1\\Lab1-1\\Img\\color.bmp",
 	   IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE); //Load bmp image
    SendMessage(bChooseColor1, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmpSource);
    //ChooseColor2
-   HWND bChooseColor2 = CreateWindow(L"BUTTON",
-	   L"", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_BITMAP, 70, 150, 30, 30, hWnd, (HMENU)CHOOSECOLOR_BUTTON2,
+   HWND bChooseColor2 = CreateWindow("BUTTON",
+	   "", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_BITMAP, 70, 150, 30, 30, hWnd, (HMENU)CHOOSECOLOR_BUTTON2,
 	   (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE),
 	   NULL);
-   bmpSource = (HBITMAP)LoadImage(NULL, L"Y:\\”˜Â·‡-5\\Œ—»—œ\\OSISP-1\\Lab1-1\\Img\\color.bmp",
+   bmpSource = (HBITMAP)LoadImage(NULL, "Y:\\”˜Â·‡-5\\Œ—»—œ\\OSISP-1\\Lab1-1\\Img\\color.bmp",
 	   IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE); //Load bmp image
    SendMessage(bChooseColor2, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmpSource);
    //Text
-   HWND bText = CreateWindow(L"BUTTON",
-	   L"", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_BITMAP, 30, 150, 30, 30, hWnd, (HMENU)TEXT_BUTTON,
+   HWND bText = CreateWindow("BUTTON",
+	   "", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_BITMAP, 30, 150, 30, 30, hWnd, (HMENU)TEXT_BUTTON,
 	   (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE),
 	   NULL);
-   bmpSource = (HBITMAP)LoadImage(NULL, L"Y:\\”˜Â·‡-5\\Œ—»—œ\\OSISP-1\\Lab1-1\\Img\\text.bmp",
+   bmpSource = (HBITMAP)LoadImage(NULL, "Y:\\”˜Â·‡-5\\Œ—»—œ\\OSISP-1\\Lab1-1\\Img\\text.bmp",
 	   IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE); //Load bmp image
    SendMessage(bText, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmpSource);
 
@@ -235,7 +309,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    memset(&A, 0, sizeof(A));
    for (int k = 0; k <= 3; k += 1)
    {
-	   wcscpy_s(A, sizeof(A) / sizeof(TCHAR), (TCHAR*)Sizes[k]);
+	  strcpy_s(A, sizeof(A) / sizeof(TCHAR), (TCHAR*)Sizes[k]);
 	   SendMessage(hWndComboBox, (UINT)CB_ADDSTRING, (WPARAM)0, (LPARAM)A);
    }
    SendMessage(hWndComboBox, CB_SETCURSEL, (WPARAM)0, (LPARAM)0);
@@ -276,7 +350,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			(TCHAR)SendMessage((HWND)lParam, (UINT)CB_GETLBTEXT,
 				(WPARAM)ItemIndex, (LPARAM)ListItem);
 			//MessageBox(hWnd, (LPCWSTR)ListItem, TEXT("Item Selected"), MB_OK);
-			iBrushSize = _wtoi(ListItem);
+			iBrushSize = atoi(ListItem);
 		}
 			
 			// Parse the menu selections:
@@ -313,6 +387,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				shapeType = 5;
 			}
 			break;
+			case IDM_PAN:
+			{
+				shapeType = 7;
+			}
+			break;
+			case IDM_PRINT:
+			{
+				shapeType = 8;
+			}
+			break;
 			case TEXT_BUTTON: case IDM_TEXT:
 			{
 				shapeType = 6;
@@ -329,6 +413,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				color2 = choseColor(hWnd);
 			}
 			break;
+			case IDM_SAVE:
+			{
+				HDC hdc = GetDC(hWnd);
+				SavePicture(hWnd, hdc, *rCanvas);
+			}
+			break;
+			case IDM_OPEN:
+			{
+				HDC hdc = GetDC(hWnd);
+				OpenPicture(hWnd, hdc, *rCanvas);
+			}
+			break;
 			default:
 				return DefWindowProc(hWnd, message, wParam, lParam);
 			}
@@ -342,6 +438,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			POINT p;
 			GetCursorPos(&p);
 			ScreenToClient(hWnd, &p);
+			
 			mouseDown = true;
 		  /*  RECT *rect=new RECT();
 			rect->left = p.x;
@@ -392,10 +489,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				tmpFigure->y1 = p.y;
 			}
 			break;
+			case 8:
+			{
+				tmpFigure = new PrintRect();
+				tmpFigure->x1 = p.x;
+				tmpFigure->y1 = p.y;
 			}
-			tmpFigure->qColor = color1;
-			tmpFigure->qColor2 = color2;
-			tmpFigure->iBrushSize = iBrushSize;
+			break;
+			case 7:
+				if (wParam & MK_SHIFT)
+					pMouseDown = p;
+				break;
+			}
+			if (tmpFigure != NULL) {
+				tmpFigure->qColor = color1;
+				tmpFigure->qColor2 = color2;
+				tmpFigure->iBrushSize = iBrushSize;
+			}
 			//SendMessage(hWnd, WM_PAINT, NULL, NULL);
 		}
 	}
@@ -410,7 +520,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			ScreenToClient(hWnd, &p);
 			switch (shapeType)
 			{
-			case 1: case 3: case 4: 
+			case 1: case 3: case 4: case 8:
 			{
 				tmpFigure->x2 = p.x;
 				tmpFigure->y2 = p.y;
@@ -429,25 +539,43 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 			mouseDown = false;
 			//lLine.push_back(line);
-			if ((shapeType != 5)&&(shapeType != 6)) {
+			if ((shapeType != 5)&&(shapeType != 6) && (shapeType != 8)) {
 				lFigure.push_back(tmpFigure);
 				tmpFigure = NULL;
 			}
+			if (shapeType == 8)
+			{
+				HDC hdc = GetDC(hWnd);
+				RECT* rect = new RECT();
+				rect->top = tmpFigure->y1*26;
+				rect->left = (tmpFigure->x1 - rCanvas->left) *26;
+				rect->bottom = tmpFigure->y2 *26 ;
+				rect->right = (tmpFigure->x2 - rCanvas->left) *26;
+				SavePicture(hWnd, hdc, *rect);
+				tmpFigure = NULL;
+			}
 			InvalidateRect(hWnd, rCanvas, NULL);
+		}
+		else
+		{
+			if (shapeType == 7)
+				mouseDown = false;
 		}
 	}
 	break;
 	case WM_MOUSEMOVE:
 	{
+		POINT p;
+		GetCursorPos(&p);
+		ScreenToClient(hWnd, &p);
 		if(mouseDown)
 		if ((tmpFigure != NULL))
 		{
-			POINT p;
-			GetCursorPos(&p);
-			ScreenToClient(hWnd, &p);
+			
+			
 			switch (shapeType)
 			{
-			case 1: case 3: case 4: 
+			case 1: case 3: case 4: case 8:
 			{
 				tmpFigure->x2 = p.x;
 				tmpFigure->y2 = p.y;
@@ -457,16 +585,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 				((Pencil*)tmpFigure)->AddPoint(p);
 			}
-			break;
-			case 5:
-			{
-				//((BrokenLine*)tmpFigure)->AddPoint(p);
-			}
-			break;
-			
+			break;			
 			}	
 			InvalidateRect(hWnd, rCanvas, NULL);
 		}
+		else
+			if (shapeType == 7)
+			{
+				POINT pDelta;
+				if (wParam & MK_SHIFT) {
+					pDelta.x = pMouseDown.x - p.x;
+					pDelta.y = pMouseDown.y - p.y;
+					pMouseDown = p;
+					for (AbstractFigure *figure : lFigure)
+						figure->Pan(pDelta);
+					InvalidateRect(hWnd, rCanvas, NULL);
+				}
+			}
 	}
 	break;
 	//LEFT MOUSE BUTTON DOWN
@@ -507,14 +642,32 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		
 	}
 	break;
+	case WM_MOUSEWHEEL:
+	{
+		if (wParam & MK_CONTROL)
+		{
+			if ((GET_WHEEL_DELTA_WPARAM(wParam) > 0) && (dScale < 2)) {
+				dScale += 0.1;
+			}
+			if ((GET_WHEEL_DELTA_WPARAM(wParam) < 0) && (dScale > 1)) {
+				dScale -= 0.1;
+			}
+			InvalidateRect(hWnd, rCanvas, TRUE);
+		}
+	}
+	break;
 	//PAINT WHEN INVALIDATE
     case WM_PAINT:
         {
             PAINTSTRUCT ps;
 			//RECT rect;
-                   HDC hdc = BeginPaint(hWnd, &ps);
+            HDC hdc = BeginPaint(hWnd, &ps);
 			//GetClientRect(hWnd, &rect);
-			
+			/*XFORM xForm;
+			xForm.eM11 = xForm.eM22 = dScale;
+			xForm.eM12 = xForm.eM21 = xForm.eDx = xForm.eDy = 0;
+			SetGraphicsMode(hdc, GM_ADVANCED);
+			SetWorldTransform(hdc, &xForm);*/
 			       //FillRect(hdc, rCanvas, CreateSolidBrush(RGB(255, 255, 255)));//clean canvas
 			//SelectObject(hdc, GetStockObject(BLACK_PEN));
 			       
@@ -541,9 +694,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				//Rectangle(hdc, rect->left, rect->top, rect->right, rect->bottom);
 				//FillRect(hdc, rect, hBrush);
 			for (AbstractFigure *figure : lFigure)
-				figure->Draw(hdc2);
+				figure->Draw(hdc2, dScale);
 			if (tmpFigure != NULL)
-				tmpFigure->Draw(hdc2);
+				tmpFigure->Draw(hdc2, dScale);
             // TODO: Add any drawing code that uses hdc here...
 			//DeleteObject(hPen);
                 

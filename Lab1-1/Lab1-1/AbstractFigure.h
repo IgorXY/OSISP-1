@@ -8,5 +8,6 @@ public:
 	HBRUSH hBrush;
 	COLORREF qColor, qColor2;
 
-	virtual void Draw(HDC hdc) = 0;
+	virtual void Draw(HDC hdc, double scale) = 0;
+	virtual void Pan(POINT p) = 0;
 };

@@ -22,6 +22,10 @@
 #define IDM_TEXT		115
 #define IDM_COLOR1		116
 #define IDM_COLOR2		117
+#define IDM_SAVE		118
+#define IDM_OPEN		119
+#define IDM_PAN			120
+#define IDM_PRINT       121
 #ifndef IDC_STATIC
 #define IDC_STATIC				-1
 #endif

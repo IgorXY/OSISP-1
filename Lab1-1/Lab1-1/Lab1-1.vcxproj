@@ -29,7 +29,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -147,6 +147,7 @@
     <ClInclude Include="Lab1-1.h" />
     <ClInclude Include="Line.h" />
     <ClInclude Include="Pencil.h" />
+    <ClInclude Include="PrintRect.h" />
     <ClInclude Include="RectangleFigure.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
@@ -159,6 +160,7 @@
     <ClCompile Include="Lab1-1.cpp" />
     <ClCompile Include="Line.cpp" />
     <ClCompile Include="Pencil.cpp" />
+    <ClCompile Include="PrintRect.cpp" />
     <ClCompile Include="Rectangle.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

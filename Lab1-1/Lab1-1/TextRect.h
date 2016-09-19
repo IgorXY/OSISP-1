@@ -12,5 +12,6 @@ public:
 	void AddChar(char ch);
 	void RemoveChar();
 
-	virtual void Draw(HDC hdc) override;
+	virtual void Draw(HDC hdc, double scale) override;
+	virtual void Pan(POINT p) override;
 };
